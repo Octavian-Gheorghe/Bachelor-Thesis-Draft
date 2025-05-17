@@ -39,8 +39,7 @@ public class Main
         Activity writeReport = new Activity(
                 1,                          // id
                 "Write Report",              // name
-                180,                         // min duration (minutes)
-                300,                         // max duration
+                180,                         // duration (minutes)
                 1,                           // max number of parts (non-interruptible)
                 null,                        // no min part duration needed
                 null,                        // no max part duration needed
@@ -54,7 +53,6 @@ public class Main
                 2,
                 "Gym Session",
                 60,
-                120,
                 1,
                 null,
                 null,

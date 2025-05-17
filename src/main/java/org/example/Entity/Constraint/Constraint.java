@@ -1,6 +1,12 @@
 package org.example.Entity.Constraint;
 
+import org.example.Entity.Activity.ActivityPart;
+import org.example.Entity.TemporalInterval;
+
+import java.util.List;
+
 public interface Constraint
 {
-    boolean isSatisfied();
+    boolean eval();
+    List<ActivityPart> propagate();
 }
