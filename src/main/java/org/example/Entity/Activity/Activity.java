@@ -20,7 +20,7 @@ public class Activity
     private Integer maximumDuration;
 
     //interruptibility
-    private Integer numberOfMaxPartsInWhichCanBeSplit;
+    private Integer numberOfMaxPartsInWhichCanBeSplit; //p
     private List<ActivityPart> partsOfTheActivity;
        
     private Integer minimumAllowedPartDuration;
@@ -33,7 +33,6 @@ public class Activity
 
     //set of alternative locations
     private List<Location> possibleLocations;
-    private Location ChosenLocation;
 
     //utilization
     private double utilizationValue;
@@ -84,7 +83,6 @@ public class Activity
         return "Activity{" +
                 "name='" + name + '\'' +
                 ", parts=" + partsOfTheActivity +
-                ", location=" + (ChosenLocation != null ? ChosenLocation.getLocationName() : "Unassigned") +
                 ", utilizationValue=" + utilizationValue +
                 '}';
     }

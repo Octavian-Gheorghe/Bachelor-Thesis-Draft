@@ -18,6 +18,7 @@ public class MaximumTemporalProximityConstraint implements  Constraint
     private Integer timeTakenBetweenAny2PartsOfActivities;
 
 
+    //TO BE CHECKED! I think these fail
     @Override
     public boolean isSatisfied()
     {
