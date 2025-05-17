@@ -7,6 +7,7 @@ import org.example.Entity.TemporalInterval;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import static java.lang.Math.max;
@@ -17,133 +18,112 @@ public class Activity {
     private Integer id;
     private String name;
 
-    //the duration range
-    private Integer duration;
+    private Integer duration; // total duration
 
-    //interruptibility
-    private Integer numberOfMaxPartsInWhichCanBeSplit; //p
-    private List<ActivityPart> partsOfTheActivity;
+    // Splitting (interruptibility)
+    private Integer maxSplits;
+    private List<ActivityPart> parts;
+    private Integer minPartDuration;
+    private Integer maxPartDuration;
+    private Integer minGapBetweenParts;
+    private Integer maxGapBetweenParts;
 
-    private Integer minimumAllowedPartDuration;
-    private Integer maximumAllowedPartDuration;
-    private Integer minimumTemporalDistanceBetweenParts;
-    private Integer maximumTemporalDistanceBetweenParts;
+    // Temporal domain
+    private List<TemporalInterval> intervals;
 
-    //temporal domains
-    private List<TemporalInterval> listOfTemporalIntervals;
+    // Location alternatives
+    private List<Location> locations;
 
-    //set of alternative locations
-    private List<Location> possibleLocations;
+    // Utilization
+    private double utilization;
 
-    //utilization
-    private double utilizationValue;
-
-    public Activity(Integer id, String name, Integer duration, Integer numberOfMaxPartsInWhichCanBeSplit, Integer minimumAllowedPartDuration, Integer maximumAllowedPartDuration, Integer minimumTemporalDistanceBetweenParts, Integer maximumTemporalDistanceBetweenParts, List<TemporalInterval> listOfTemporalIntervals, List<Location> possibleLocations) {
+    public Activity(Integer id, String name, Integer duration,
+                    Integer minPartDuration, Integer maxPartDuration,
+                    Integer minGapBetweenParts, Integer maxGapBetweenParts,
+                    List<TemporalInterval> intervals, List<Location> locations) {
         this.id = id;
         this.name = name;
         this.duration = duration;
-        this.numberOfMaxPartsInWhichCanBeSplit = numberOfMaxPartsInWhichCanBeSplit;
-        partsOfTheActivity = new ArrayList<>();
-        interpretNrOfInterruptibleParts(numberOfMaxPartsInWhichCanBeSplit, minimumAllowedPartDuration, maximumAllowedPartDuration, minimumTemporalDistanceBetweenParts, maximumTemporalDistanceBetweenParts);
-        this.listOfTemporalIntervals = listOfTemporalIntervals;
-        this.possibleLocations = possibleLocations;
-        this.utilizationValue = 0;
+        this.parts = new ArrayList<>();
+        configureSplitProperties(minPartDuration, maxPartDuration, minGapBetweenParts, maxGapBetweenParts);
+        this.intervals = intervals;
+        this.locations = locations;
+        this.utilization = 0;
     }
 
-    private void interpretNrOfInterruptibleParts(Integer numberOfMaxPartsInWhichCanBeSplit, Integer minimumAllowedPartDuration, Integer maximumAllowedPartDuration, Integer minimumTemporalDistanceBetweenParts, Integer maximumTemporalDistanceBetweenParts) {
-        if (this.numberOfMaxPartsInWhichCanBeSplit < 1)
-            this.numberOfMaxPartsInWhichCanBeSplit = 1;
-        if (this.numberOfMaxPartsInWhichCanBeSplit == 1) {
-            ActivityPart activityPart = new ActivityPart();
-            partsOfTheActivity.add(activityPart);
-            this.minimumAllowedPartDuration = this.duration;
-            this.maximumAllowedPartDuration = this.duration;
-            this.minimumTemporalDistanceBetweenParts = 0;
-            this.maximumTemporalDistanceBetweenParts = 0;
-        } else {
-            this.minimumAllowedPartDuration = minimumAllowedPartDuration;
-            this.maximumAllowedPartDuration = maximumAllowedPartDuration;
-            this.minimumTemporalDistanceBetweenParts = minimumTemporalDistanceBetweenParts;
-            this.maximumTemporalDistanceBetweenParts = maximumTemporalDistanceBetweenParts;
-            for (int i = 0; i < numberOfMaxPartsInWhichCanBeSplit; i++) {
-                ActivityPart activityPart = new ActivityPart();
-                partsOfTheActivity.add(activityPart);
-            }
-        }
-    }
+    private void configureSplitProperties(Integer minPartDuration, Integer maxPartDuration, Integer minGap, Integer maxGap) {
+        this.maxSplits = minRequiredSplits();
 
-    public double determineDifficultyOfActivityPlacement()
-    {
-        return max(findMetric1ForActivity(), findMetric2ForActivity());
-    }
-
-    public void removeUselessIntervals()
-    {
-        for(TemporalInterval temporalInterval : listOfTemporalIntervals)
+        if (maxSplits == 1)
         {
-            Integer temporalIntervalWeight = temporalInterval.getWeight();
-            if(temporalIntervalWeight < minimumAllowedPartDuration)
+            this.minPartDuration = this.duration;
+            this.maxPartDuration = this.duration;
+            this.minGapBetweenParts = 0;
+            this.maxGapBetweenParts = 0;
+            this.parts.add(new ActivityPart());
+        }
+        else
+        {
+            this.minPartDuration = minPartDuration;
+            this.maxPartDuration = maxPartDuration;
+            this.minGapBetweenParts = minGap;
+            this.maxGapBetweenParts = maxGap;
+            for (int i = 0; i < maxSplits; i++)
             {
-                listOfTemporalIntervals.remove(temporalInterval);
+                this.parts.add(new ActivityPart());
             }
         }
     }
 
-    private double determineNetSizeForActivity()
-    {
-        double fullWeight;
-        fullWeight = 0;
-        for(TemporalInterval temporalInterval : this.getListOfTemporalIntervals())
-        {
-            fullWeight += temporalInterval.getWeight();
+    public double calculateDifficulty() {
+        return max(metricDurationOverNetAvailability(), metricMinMakespanOverDomainWidth());
+    }
+
+    public void cleanUselessIntervals() {
+        Iterator<TemporalInterval> it = intervals.iterator();
+        while (it.hasNext()) {
+            if (it.next().getWeight() < minPartDuration) {
+                it.remove();
+            }
         }
-        return fullWeight;
     }
 
-    public double findMetric1ForActivity()
-    {
-        return this.getDuration().doubleValue() / determineNetSizeForActivity();
+    private double netAvailableTime() {
+        return intervals.stream()
+                .mapToDouble(TemporalInterval::getWeight)
+                .sum();
     }
 
-    private int determineMakespanOfActivity() //?
-    {
-        if(this.getPartsOfTheActivity() != null)
-            return Math.toIntExact(Math.abs(Duration.between(
-                this.getPartsOfTheActivity().get(this.getPartsOfTheActivity().size()-1).calculateEndTime(), this.getPartsOfTheActivity().get(0).getStartTime()
-                ).toMinutes()));
-        return determineLowerBoundForMakespan();
+    private double metricDurationOverNetAvailability() {
+        return duration / netAvailableTime();
     }
 
-    private int determineWidthOfDomain()
-    {
-        if(this.getListOfTemporalIntervals() != null)
-            return Math.toIntExact(Math.abs(Duration.between(
-                    this.getListOfTemporalIntervals().get(this.getListOfTemporalIntervals().size()-1).getEndTime(), this.getListOfTemporalIntervals().get(0).getStartTime()
-            ).toMinutes()));
-        return 0;
+    private double metricMinMakespanOverDomainWidth() {
+        return (double) minMakespanEstimate() / domainWidth();
     }
 
-    public double findMetric2ForActivity()
-    {
-        return this.determineLowerBoundForMakespan().doubleValue() / determineWidthOfDomain();
+    private int domainWidth() {
+        if (intervals == null || intervals.size() < 2) return 0;
+        return Math.toIntExact(Duration.between(
+                intervals.get(0).getStartTime(),
+                intervals.get(intervals.size() - 1).getEndTime()
+        ).toMinutes());
     }
 
-    private Integer determineLowerBoundForMakespan()
-    {
-        return duration + minimumTemporalDistanceBetweenParts * (determineMinimumNumberOfPartsNeeded()-1);
+    private int minMakespanEstimate() {
+        return duration + minGapBetweenParts * (minRequiredSplits() - 1);
     }
 
-    private int determineMinimumNumberOfPartsNeeded()
-    {
-        return (int) Math.ceil((double) this.duration / this.maximumAllowedPartDuration);
+    private int minRequiredSplits() {
+        return (int) Math.ceil((double) duration / maxPartDuration);
     }
 
     @Override
     public String toString() {
         return "Activity{" +
                 "name='" + name + '\'' +
-                ", parts=" + partsOfTheActivity +
-                ", utilizationValue=" + utilizationValue +
+                ", parts=" + parts +
+                ", utilization=" + utilization +
                 '}';
     }
 }

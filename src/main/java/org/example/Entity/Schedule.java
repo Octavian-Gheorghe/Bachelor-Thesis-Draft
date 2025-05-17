@@ -39,7 +39,7 @@ public class Schedule
     {
         for(Activity activityToBeCleaned : activities)
         {
-            activityToBeCleaned.removeUselessIntervals();
+            activityToBeCleaned.cleanUselessIntervals();
         }
     }
 
@@ -48,7 +48,7 @@ public class Schedule
         List<Double> difficulties = new ArrayList<>();
         for(Activity activity : activities)
         {
-            Double difficulty = activity.determineDifficultyOfActivityPlacement();
+            double difficulty = activity.calculateDifficulty();
             if(difficulty > 1)
                 return null;
             difficulties.add(difficulty);
@@ -58,15 +58,15 @@ public class Schedule
 
     public void sortActivitiesByDifficulty() {
         for (Activity activity : activities) {
-            if (activity.determineDifficultyOfActivityPlacement() > 1) {
+            if (activity.calculateDifficulty() > 1) {
                 activities.clear();
                 return;
             }
         }
 
         activities.sort((a1, a2) -> {
-            Double diff1 = a1.determineDifficultyOfActivityPlacement();
-            Double diff2 = a2.determineDifficultyOfActivityPlacement();
+            double diff1 = a1.calculateDifficulty();
+            double diff2 = a2.calculateDifficulty();
             return Double.compare(diff1, diff2);
         });
     }
