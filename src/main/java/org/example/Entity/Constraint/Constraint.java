@@ -8,5 +8,5 @@ import java.util.List;
 public interface Constraint
 {
     boolean eval();
-    List<ActivityPart> propagate();
+    List<TemporalInterval> propagate();
 }
