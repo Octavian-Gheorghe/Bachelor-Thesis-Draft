@@ -7,6 +7,7 @@ import org.example.Entity.Location;
 import org.example.Entity.TemporalInterval;
 
 import java.time.Duration;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -66,7 +67,10 @@ public class Activity {
             this.maxPartDuration = this.duration;
             this.minGapBetweenParts = 0;
             this.maxGapBetweenParts = 0;
-            this.parts.add(new ActivityPart());
+            ActivityPart activityPart = new ActivityPart();
+            activityPart.setDuration(0);
+            activityPart.setStartTime(LocalTime.of(0,0));
+            this.parts.add(activityPart);
         }
         else
         {
@@ -81,7 +85,9 @@ public class Activity {
         }
     }
 
-    public double calculateDifficulty() {
+    public double calculateInitialDifficulty()
+    {
+//        System.out.println("For activity " + id + " " + name + " We have: " + metricDurationOverNetAvailability() + " ; " + metricMinMakespanOverDomainWidth());
         return max(metricDurationOverNetAvailability(), metricMinMakespanOverDomainWidth());
     }
 
@@ -124,12 +130,28 @@ public class Activity {
         return (int) Math.ceil((double) duration / maxPartDuration);
     }
 
+    public List<LocalTime> findPossibleStartTimes()
+    {
+        List<LocalTime> startTimes = new ArrayList<>();
+        int activityDuration = duration;
+
+        for (TemporalInterval interval : getIntervals())
+        {
+            LocalTime cursor = interval.getStartTime();
+            while (cursor.plusMinutes(activityDuration).isBefore(interval.getEndTime()) || cursor.plusMinutes(activityDuration).equals(interval.getEndTime()))
+            {
+                startTimes.add(cursor);
+                cursor = cursor.plusMinutes(1);
+            }
+        }
+        return startTimes;
+    }
+
     @Override
     public String toString() {
         return "Activity{" +
                 "name='" + name + '\'' +
                 ", parts=" + parts +
-                ", utilization=" + utilization +
                 '}';
     }
 }

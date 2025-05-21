@@ -36,4 +36,10 @@ public class ActivityPartsFitInTemporalIntervalsConstraint implements Constraint
     public List<TemporalInterval> propagate() {
         return List.of();
     }
+
+    @Override
+    public boolean involves(Activity a)
+    {
+        return this.activity.getId().equals(a.getId());
+    }
 }

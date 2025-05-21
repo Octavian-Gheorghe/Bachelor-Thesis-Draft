@@ -43,4 +43,9 @@ public class ActivityMinimumTemporalDistanceConstraint implements Constraint //C
     {
         return List.of();
     }
+
+    @Override
+    public boolean involves(Activity a) {
+        return this.activity.getId().equals(a.getId());
+    }
 }

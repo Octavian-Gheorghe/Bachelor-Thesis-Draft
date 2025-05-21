@@ -31,4 +31,9 @@ public class ActivityPartDurationConstraint implements Constraint //C1
     {
         return List.of();
     }
+
+    @Override
+    public boolean involves(Activity a) {
+        return this.activity.getId().equals(a.getId());
+    }
 }

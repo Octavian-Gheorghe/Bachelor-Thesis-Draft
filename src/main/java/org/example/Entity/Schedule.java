@@ -1,5 +1,6 @@
 package org.example.Entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import org.example.Entity.Activity.Activity;
@@ -11,6 +12,7 @@ import java.util.Objects;
 /*Pseudo Repository*/
 @Getter
 @Setter
+@AllArgsConstructor
 public class Schedule
 {
     private List<Activity> activities;
@@ -48,7 +50,7 @@ public class Schedule
         List<Double> difficulties = new ArrayList<>();
         for(Activity activity : activities)
         {
-            double difficulty = activity.calculateDifficulty();
+            double difficulty = activity.calculateInitialDifficulty();
             if(difficulty > 1)
                 return null;
             difficulties.add(difficulty);
@@ -59,15 +61,15 @@ public class Schedule
     public void sortActivitiesByDifficulty()
     {
         for (Activity activity : activities) {
-            if (activity.calculateDifficulty() > 1) {
+            if (activity.calculateInitialDifficulty() > 1) {
                 activities.clear();
                 return;
             }
         }
 
         activities.sort((a1, a2) -> {
-            double diff1 = a1.calculateDifficulty();
-            double diff2 = a2.calculateDifficulty();
+            double diff1 = a1.calculateInitialDifficulty();
+            double diff2 = a2.calculateInitialDifficulty();
             return Double.compare(diff1, diff2);
         });
     }

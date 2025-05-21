@@ -25,4 +25,9 @@ public class AllowedPartDurationConstraint implements Constraint //C2
     public List<TemporalInterval> propagate() {
         return List.of();
     }
+
+    @Override
+    public boolean involves(Activity a) {
+        return this.activity.getId().equals(a.getId());
+    }
 }
