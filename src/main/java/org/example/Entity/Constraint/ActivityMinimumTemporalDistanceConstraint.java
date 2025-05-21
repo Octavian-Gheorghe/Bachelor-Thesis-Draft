@@ -1,5 +1,6 @@
 package org.example.Entity.Constraint;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,6 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 @Setter
+@AllArgsConstructor
 public class ActivityMinimumTemporalDistanceConstraint implements Constraint //C3
 {
     Activity activity;

@@ -1,4 +1,9 @@
 package org.example.SWO;
 
-public class Constructor {
+import org.example.Entity.Activity.Activity;
+import org.example.Entity.Location;
+
+public class Constructor
+{
+
 }

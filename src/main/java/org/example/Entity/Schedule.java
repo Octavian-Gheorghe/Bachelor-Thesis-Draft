@@ -56,7 +56,8 @@ public class Schedule
         return difficulties;
     }
 
-    public void sortActivitiesByDifficulty() {
+    public void sortActivitiesByDifficulty()
+    {
         for (Activity activity : activities) {
             if (activity.calculateDifficulty() > 1) {
                 activities.clear();
@@ -71,4 +72,11 @@ public class Schedule
         });
     }
 
+    public void setActivitiesAsNonTroublemakers()
+    {
+        for (Activity a : activities)
+        {
+            a.setTroublemaker(false);
+        }
+    }
 }

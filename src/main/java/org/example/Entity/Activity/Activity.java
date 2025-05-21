@@ -1,6 +1,7 @@
 package org.example.Entity.Activity;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.example.Entity.Location;
 import org.example.Entity.TemporalInterval;
@@ -37,6 +38,8 @@ public class Activity {
     // Utilization
     private double utilization;
 
+    private boolean isTroublemaker;
+
     public Activity(Integer id, String name, Integer duration,
                     Integer minPartDuration, Integer maxPartDuration,
                     Integer minGapBetweenParts, Integer maxGapBetweenParts,
@@ -45,6 +48,9 @@ public class Activity {
         this.name = name;
         this.duration = duration;
         this.parts = new ArrayList<>();
+        this.minPartDuration = minPartDuration;
+        this.maxPartDuration = maxPartDuration;
+        this.isTroublemaker = false;
         configureSplitProperties(minPartDuration, maxPartDuration, minGapBetweenParts, maxGapBetweenParts);
         this.intervals = intervals;
         this.locations = locations;

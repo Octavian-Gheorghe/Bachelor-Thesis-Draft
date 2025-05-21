@@ -18,6 +18,13 @@ public class ActivityPart
     private Integer duration;
     private Location ChosenLocation;
 
+    public ActivityPart(Integer id, LocalTime startTime, Integer duration)
+    {
+        this.id =id;
+        this.startTime = startTime;
+        this.duration = duration;
+    }
+
     public LocalTime calculateEndTime()
     {
         return startTime.plusMinutes(duration);
