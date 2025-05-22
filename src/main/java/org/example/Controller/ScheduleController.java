@@ -80,6 +80,7 @@ public class ScheduleController {
         List<ScheduledActivityResponse> result = new ArrayList<>();
         for (Activity a : schedule.getActivities()) {
             ActivityPart part = a.getParts().get(0);
+            System.out.println(part);
             result.add(new ScheduledActivityResponse(
                     a.getName(),
                     part.getStartTime().toString(),
